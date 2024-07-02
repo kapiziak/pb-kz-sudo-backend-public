@@ -1,0 +1,145 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id Int [pk, increment]
+  email String [unique, not null]
+  password String [not null]
+  role Role [not null]
+  profile Profile
+  superId SuperId
+  createdAuthorizations Authorization [not null]
+  assignedTo Authorization [not null]
+  authorizedEntries Entry [not null]
+  occupierEntries Entry [not null]
+}
+
+Table ProfileAttribute {
+  id Int [pk, increment]
+  key String [not null]
+  name String [not null]
+  attributeOnProfile ProfileAttributeOnProfile [not null]
+}
+
+Table ProfileAttributeOnProfile {
+  profileAttribute ProfileAttribute [not null]
+  profileAttributeId Int [not null]
+  profile Profile [not null]
+  profileId Int [not null]
+  value String [not null]
+
+  indexes {
+    (profileAttributeId, profileId) [pk]
+  }
+}
+
+Table Profile {
+  id Int [pk, increment]
+  firstName String [not null]
+  surname String
+  description String
+  user User [not null]
+  userId Int [unique, not null]
+  avatarUrl String
+  attributes ProfileAttributeOnProfile [not null]
+}
+
+Table SuperId {
+  id Int [pk, increment]
+  secret String [not null]
+  validTo DateTime
+  pin String
+  studentId String
+  identityCardId String
+  user User [not null]
+  userId Int [unique, not null]
+  challenges SuperIdChallenge [not null]
+}
+
+Table Facility {
+  id Int [pk, increment]
+  name String [not null]
+  authorizations Authorization [not null]
+  occupancy FacilityOccupancy [not null]
+}
+
+Table FacilityOccupancy {
+  id Int [pk, increment]
+  facilityId Int [not null]
+  facility Facility [not null]
+  relatedEntryId Int [not null]
+  relatedEntry Entry
+  isOccupied Boolean [not null]
+  createdAt DateTime [default: `now()`, not null]
+}
+
+Table Authorization {
+  id Int [pk, increment]
+  createdAt DateTime [default: `now()`, not null]
+  expireAt DateTime
+  scopeFacility Facility [not null]
+  createdBy User [not null]
+  createdByUserId Int [not null]
+  assignedUsers User [not null]
+  entries Entry [not null]
+}
+
+Table Entry {
+  id Int [pk, increment]
+  entryAt DateTime [default: `now()`, not null]
+  releaseAt DateTime
+  authorization Authorization
+  authorizationId Int
+  authorizedBy User [not null]
+  authorizedById Int [not null]
+  occupier User [not null]
+  occupierId Int [not null]
+  relatedOccupancy FacilityOccupancy [not null]
+}
+
+Table SuperIdChallenge {
+  challengeId String [pk]
+  superId SuperId [not null]
+  superIdId Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  validTo DateTime [not null]
+}
+
+Table assignedTo {
+  assignedtoId Int [ref: > Authorization.id]
+  assignedusersId Int [ref: > User.id]
+}
+
+Table AuthorizationToFacility {
+  authorizationsId Int [ref: > Authorization.id]
+  scopefacilityId Int [ref: > Facility.id]
+}
+
+Enum Role {
+  ADMIN
+  EMPLOYEE
+  VISITOR
+}
+
+Ref: ProfileAttributeOnProfile.profileAttributeId > ProfileAttribute.id
+
+Ref: ProfileAttributeOnProfile.profileId > Profile.id
+
+Ref: Profile.userId - User.id
+
+Ref: SuperId.userId - User.id
+
+Ref: FacilityOccupancy.facilityId > Facility.id
+
+Ref: FacilityOccupancy.relatedEntryId > Entry.id
+
+Ref: Authorization.createdByUserId > User.id
+
+Ref: Entry.authorizationId > Authorization.id
+
+Ref: Entry.authorizedById > User.id
+
+Ref: Entry.occupierId > User.id
+
+Ref: SuperIdChallenge.superIdId > SuperId.id

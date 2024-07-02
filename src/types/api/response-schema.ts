@@ -1,0 +1,1 @@
+type TApiResponse<T> = T;

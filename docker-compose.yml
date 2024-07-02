@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+    testDb:
+        image: postgres:13
+        container_name: integration-tests-prisma
+        ports:
+            - "5433:5432"
+        environment:
+            POSTGRES_USER: prisma
+            POSTGRES_PASSWORD: prisma
+            POSTGRES_DB: tests
+        profiles:
+            - donotstart
+    postgres:
+        image: postgres:10.3
+        restart: always
+        hostname: postgres
+        environment:
+            - POSTGRES_USER=dbuser
+            - POSTGRES_PASSWORD=dbsecretpassword
+        volumes:
+            - postgres:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+    backend:
+        stdin_open: true
+        volumes:
+            - .:/app
+            - node_modules:/app/node_modules
+        build: "."
+        container_name: pb-kz-sudo-backend
+        depends_on:
+            - postgres
+        ports:
+            - "3000:3000"
+        restart: always
+        environment:
+            - PORT=3000
+volumes:
+    postgres:
+    node_modules:

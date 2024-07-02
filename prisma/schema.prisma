@@ -1,0 +1,146 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                    Int             @id @default(autoincrement())
+  email                 String          @unique
+  password              String
+  role                  Role
+  profile               Profile?
+  superId               SuperId?
+  createdAuthorizations Authorization[] @relation("createdAuthorizations")
+  assignedTo            Authorization[] @relation("assignedTo")
+  authorizedEntries     Entry[] @relation("authorizedBy")
+  occupierEntries       Entry[] @relation("occupier")
+}
+
+model ProfileAttribute {
+  id                 Int                         @id @default(autoincrement())
+  key                String
+  name               String
+  attributeOnProfile ProfileAttributeOnProfile[]
+}
+
+model ProfileAttributeOnProfile {
+  profileAttribute   ProfileAttribute @relation(fields: [profileAttributeId], references: [id])
+  profileAttributeId Int
+
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId Int
+
+  value String
+
+  @@id([profileAttributeId, profileId])
+}
+
+model Profile {
+  id          Int                         @id @default(autoincrement())
+  firstName   String
+  surname     String?
+  description String?
+  user        User                        @relation(fields: [userId], references: [id])
+  userId      Int                         @unique
+  avatarUrl   String?
+  attributes  ProfileAttributeOnProfile[]
+}
+
+model SuperId {
+  id Int @id @default(autoincrement())
+
+  secret  String
+  validTo DateTime?
+
+  pin            String?
+  studentId      String?
+  identityCardId String?
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  challenges SuperIdChallenge[]
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+  VISITOR
+}
+
+model Facility {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  authorizations Authorization[]
+  occupancy      FacilityOccupancy[]
+}
+
+model FacilityOccupancy {
+    id Int @id @default(autoincrement())
+
+    facilityId Int
+    facility Facility @relation(fields: [facilityId], references: [id])
+
+    relatedEntryId Int
+    relatedEntry Entry? @relation(fields: [relatedEntryId], references: [id])
+
+    isOccupied Boolean
+
+    createdAt DateTime @default(now())
+}
+
+model Authorization {
+  id Int @id @default(autoincrement())
+
+  createdAt DateTime  @default(now())
+  expireAt  DateTime?
+
+  scopeFacility Facility[]
+
+  createdBy       User @relation("createdAuthorizations", references: [id], fields: [createdByUserId])
+  createdByUserId Int
+
+  assignedUsers User[] @relation("assignedTo")
+
+  entries Entry[]
+}
+
+model Entry {
+  id Int @id @default(autoincrement())
+
+  entryAt DateTime @default(now())
+  releaseAt DateTime? 
+  
+  authorization   Authorization? @relation(references: [id], fields: [authorizationId])
+  authorizationId Int?
+
+  authorizedBy   User @relation("authorizedBy", references: [id], fields: [authorizedById])
+  authorizedById Int
+
+  occupier  User @relation("occupier", references: [id], fields: [occupierId])
+  occupierId Int
+
+  relatedOccupancy FacilityOccupancy[]
+}
+
+model SuperIdChallenge {
+  challengeId String  @id
+
+  superId     SuperId @relation(fields: [superIdId], references: [id])
+  superIdId Int
+
+  createdAt DateTime @default(now())
+  validTo DateTime 
+}
