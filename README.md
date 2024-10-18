@@ -2,6 +2,8 @@
 
 Back-end aplikacji SUDO stworzonej w ramach pracy inżynierskiej.
 
+UWAGA: Komendy mogą działać nieprawidłowo w Powershellu. Zaleca się używanie CMD na Windowsie.
+
 ## Uruchamianie projektu
 
 0. Skopiuj zmienne środowiskowe .env.example do pliku .env
@@ -22,3 +24,14 @@ Można to wykonać poleceniem: `npx prisma migrate dev`.
 ## Prisma Studio
 
 Prisma ORM dostarcza wbudowane narzędzie do przeglądania bazy danych. Aby je uruchomić należy wykonać polecenie `npx prisma studio`.
+
+## Tworzenie pierwszego użytkownika.
+
+1. Wejdź do Prisma Studio `npx prisma studio`.
+2. Wejdź do tabeli User.
+3. Dodaj nowy rekord.
+4. Wprowadź `email`.
+5. Komendą `npm run utils:hash-password haslo` zahashuj sekretne hasło.
+6. Wprowadź do pola `password` hash z kroku 5.
+7. Zapisz zmiany.
+8. Możesz się już zalogować.
