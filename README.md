@@ -1,5 +1,7 @@
 # Opis
 
+Pełna dokumentacja projektu SUDO: https://drive.google.com/file/d/1ss5Ea737R1cwJZNMZuOFCH4A6772KSFS/view?usp=sharing
+
 Back-end aplikacji SUDO stworzonej w ramach pracy inżynierskiej.
 
 UWAGA: Komendy mogą działać nieprawidłowo w Powershellu. Zaleca się używanie CMD na Windowsie.
